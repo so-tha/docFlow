@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Erro - Loglife{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 50px auto;">
+    <div class="card">
+        <h2 style="color: #e74c3c;">⚠️ Erro</h2>
+        <p>{{ error }}</p>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+            ← Voltar ao Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

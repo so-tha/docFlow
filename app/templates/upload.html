@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Enviar Relatório - Loglife{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <h1>📤 Enviar Novo Relatório</h1>
+
+    {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+
+    <div class="card">
+        <h2>Selecione um arquivo</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Arquivo (Excel, CSV ou PDF)</label>
+                <div class="file-upload">
+                    <label for="file" class="file-label">
+                        📁 Escolher arquivo...
+                    </label>
+                    <input type="file" id="file" name="file" 
+                           accept=".xlsx,.xls,.csv,.pdf" required
+                           onchange="updateFileName(this)">
+                </div>
+                <p id="file-name" style="margin-top: 10px; color: #7f8c8d;">
+                    Nenhum arquivo selecionado
+                </p>
+            </div>
+
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 16px;">
+                ✅ Enviar Relatório
+            </button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>📋 Informações Importantes</h3>
+        <ul style="list-style: none; padding-left: 0;">
+            <li style="padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
+                ✓ Formatos aceitos: Excel (.xlsx, .xls), CSV, PDF
+            </li>
+            <li style="padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
+                ✓ Tamanho máximo: 50MB
+            </li>
+            <li style="padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
+                ✓ Após envio, você será levado para a página de comparação
+            </li>
+            <li style="padding: 8px 0;">
+                ✓ Seu relatório será comparado com a versão do SharePoint
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+function updateFileName(input) {
+    const fileName = input.files[0]?.name || 'Nenhum arquivo selecionado';
+    document.getElementById('file-name').textContent = '📄 ' + fileName;
+}
+</script>
+{% endblock %}

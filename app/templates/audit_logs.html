@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Auditoria - Loglife{% endblock %}
+
+{% block content %}
+<style>
+    .audit-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .audit-card {
+        background: white;
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin-bottom: 12px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .audit-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .audit-card.upload {
+        border-left-color: #27ae60;
+    }
+    
+    .audit-card.approve {
+        border-left-color: #2980b9;
+    }
+    
+    .audit-card.reject {
+        border-left-color: #e74c3c;
+    }
+    
+    .audit-card.login {
+        border-left-color: #f39c12;
+    }
+    
+    .audit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 10px;
+    }
+    
+    .audit-user {
+        flex: 1;
+    }
+    
+    .audit-user strong {
+        color: #2c3e50;
+        font-size: 14px;
+        display: block;
+    }
+    
+    .audit-user small {
+        color: #7f8c8d;
+        font-size: 12px;
+    }
+    
+    .audit-action {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .audit-action.upload {
+        background-color: #d5f4e6;
+        color: #27ae60;
+    }
+    
+    .audit-action.approve {
+        background-color: #d6eaf8;
+        color: #2980b9;
+    }
+    
+    .audit-action.reject {
+        background-color: #fadbd8;
+        color: #e74c3c;
+    }
+    
+    .audit-action.login {
+        background-color: #fdebd0;
+        color: #f39c12;
+    }
+    
+    .audit-action.logout {
+        background-color: #f2f3f4;
+        color: #7f8c8d;
+    }
+    
+    .audit-content {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #ecf0f1;
+    }
+    
+    .audit-filename {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 8px 0;
+        word-break: break-all;
+    }
+    
+    .audit-filename strong {
+        color: #2c3e50;
+        display: block;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        color: #7f8c8d;
+    }
+    
+    .audit-filename .filename {
+        color: #2c3e50;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+    }
+    
+    .audit-meta {
+        display: flex;
+        gap: 30px;
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .audit-meta-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .audit-meta-item strong {
+        color: #2c3e50;
+        margin-right: 5px;
+    }
+    
+    .audit-empty {
+        text-align: center;
+        padding: 40px;
+        color: #7f8c8d;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .page-header h1 {
+        margin: 0;
+    }
+</style>
+
+<div class="audit-container">
+    <div class="page-header">
+        <h1>📝 Auditoria - Histórico de Ações</h1>
+        <p style="color: #7f8c8d; margin: 0;">Todas as ações de usuários são rastreadas e registradas</p>
+    </div>
+    
+    {% if logs %}
+        {% for log in logs %}
+        <div class="audit-card {{ log.action|lower }}">
+            <div class="audit-header">
+                <div class="audit-user">
+                    <strong>👤 {{ log.user_name }}</strong>
+                    <small>{{ log.user_email }}</small>
+                </div>
+                <div class="audit-action {{ log.action|lower }}">
+                    {{ log.action|upper }}
+                </div>
+            </div>
+            
+            <div class="audit-content">
+                {% if log.action|lower == 'upload' and log.filename != 'N/A' %}
+                <div class="audit-filename">
+                    <strong>📄 Arquivo Enviado</strong>
+                    <div class="filename">{{ log.filename }}</div>
+                    {% if log.file_size %}
+                    <small style="color: #95a5a6; display: block; margin-top: 4px;">
+                        Tamanho: {{ (log.file_size / 1024)|round(2) }} KB
+                    </small>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="audit-meta">
+                    <div class="audit-meta-item">
+                        <strong>⏰ Horário:</strong>
+                        <span>{{ log.created_at_formatted }}</span>
+                    </div>
+                    {% if log.ip_address %}
+                    <div class="audit-meta-item">
+                        <strong>🔗 IP:</strong>
+                        <span>{{ log.ip_address }}</span>
+                    </div>
+                    {% endif %}
+                    {% if log.entity_type %}
+                    <div class="audit-meta-item">
+                        <strong>📋 Entidade:</strong>
+                        <span>{{ log.entity_type }} #{{ log.entity_id[:8] }}...</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="audit-empty">
+        <h3>😴 Nenhuma ação registrada</h3>
+        <p>O histórico de auditoria aparecerá aqui à medida que os usuários realizam ações</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
