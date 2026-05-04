@@ -62,3 +62,45 @@ jobs:
           AUTH_ENABLED: "false"
         run: |
           python -c "import src.core.config; import src.core.database; import src.core.models; print('core/models ok')"
+
+  package-windows:
+    name: Empacotar Loglife (Windows x64)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Instalar dependências e PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt "pyinstaller>=6.3,<7"
+
+      - name: PyInstaller (onefile)
+        run: pyinstaller --noconfirm Loglife.spec
+
+      - name: Upload do executável
+        uses: actions/upload-artifact@v4
+        with:
+          name: Loglife-Windows-x64-${{ github.run_number }}
+          path: dist/Loglife.exe
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Resumo — onde baixar o .exe
+        shell: bash
+        env:
+          N: Loglife-Windows-x64-${{ github.run_number }}
+        run: |
+          {
+            echo "### Artefato gerado"
+            echo "No repositório: **Actions** → esta execução → seção **Artifacts** no rodapé da página → baixe o zip **$N** (contém \`Loglife.exe\`)."
+            echo ""
+            echo "Copie também \`.env\` ao lado do \`.exe\` no PC de destino, se usar variáveis (modelo em \`.env.example\`)."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -4,15 +4,23 @@ Manages environment variables and application settings.
 """
 
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
 
-# Get the application root directory
-APP_ROOT = Path(__file__).parent.parent.parent
+def _app_root() -> Path:
+    """Raiz do projeto em dev; pasta do .exe após empacotar com PyInstaller."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent.parent
+
+
+APP_ROOT = _app_root()
+
+# Variáveis de ambiente (ex.: .env junto ao executável)
+load_dotenv(APP_ROOT / ".env")
 
 
 class Config:
