@@ -1,5 +1,5 @@
-# Desktop GUI Framework
-PyQt6==6.6.1
+# Desktop GUI Framework (6.7.x: wheels alinhados com MSVC no GitHub Actions Windows)
+PyQt6==6.7.1
 
 # Database & ORM
 SQLAlchemy==2.0.23

@@ -49,7 +49,16 @@ jobs:
       - name: Syntax check (compileall)
         run: python -m compileall -q src main.py scripts
 
+      # PyQt6 no runner Windows costuma falhar ao carregar QtCore; a árvore completa roda no Linux.
       - name: Verificar todos os imports (src + main.py)
+        if: runner.os == 'Linux'
         env:
           AUTH_ENABLED: "false"
         run: python scripts/verify_imports.py
+
+      - name: Smoke imports sem GUI (Windows)
+        if: runner.os == 'Windows'
+        env:
+          AUTH_ENABLED: "false"
+        run: |
+          python -c "import src.core.config; import src.core.database; import src.core.models; print('core/models ok')"
