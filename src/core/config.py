@@ -19,8 +19,8 @@ def _app_root() -> Path:
 
 APP_ROOT = _app_root()
 
-# Variáveis de ambiente (ex.: .env junto ao executável)
-load_dotenv(APP_ROOT / ".env")
+# .env junto ao .exe ou à raiz do projeto; não sobrescreve variáveis já definidas no SO (TI / GPO)
+load_dotenv(APP_ROOT / ".env", override=False)
 
 
 class Config:

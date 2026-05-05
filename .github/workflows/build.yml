@@ -13,11 +13,10 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
         python-version: ["3.11", "3.12"]
 
     steps:
@@ -31,16 +30,6 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
-      - name: Install system packages (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libegl1 \
-            libgl1 \
-            libxkbcommon-x11-0 \
-            libdbus-1-3
-
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -49,15 +38,7 @@ jobs:
       - name: Syntax check (compileall)
         run: python -m compileall -q src main.py scripts
 
-      # PyQt6 no runner Windows costuma falhar ao carregar QtCore; a árvore completa roda no Linux.
-      - name: Verificar todos os imports (src + main.py)
-        if: runner.os == 'Linux'
-        env:
-          AUTH_ENABLED: "false"
-        run: python scripts/verify_imports.py
-
-      - name: Smoke imports sem GUI (Windows)
-        if: runner.os == 'Windows'
+      - name: Smoke imports sem GUI
         env:
           AUTH_ENABLED: "false"
         run: |
@@ -102,5 +83,5 @@ jobs:
             echo "### Artefato gerado"
             echo "No repositório: **Actions** → esta execução → seção **Artifacts** no rodapé da página → baixe o zip **$N** (contém \`Loglife.exe\`)."
             echo ""
-            echo "Copie também \`.env\` ao lado do \`.exe\` no PC de destino, se usar variáveis (modelo em \`.env.example\`)."
+            echo "Configure credenciais com variáveis de ambiente do Windows ou um ficheiro \`.env\` **só na máquina do utilizador** (não partilhe secretos por e-mail). Ver \`.env.example\`."
           } >> "$GITHUB_STEP_SUMMARY"

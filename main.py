@@ -16,8 +16,8 @@ def _runtime_root() -> Path:
     return Path(__file__).resolve().parent
 
 
-# .env ao lado do main.py ou do .exe empacotado (config também chama load_dotenv)
-load_dotenv(_runtime_root() / ".env")
+# .env ao lado do main.py ou do .exe (não substitui variáveis já definidas no Windows)
+load_dotenv(_runtime_root() / ".env", override=False)
 
 # Import after loading environment
 from src.app import main
