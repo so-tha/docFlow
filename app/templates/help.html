@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Ajuda & Documentação - DocFlow{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; width: 100%;">
+    <div style="margin-bottom: 25px;">
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">ℹ️ Ajuda & Documentação</h1>
+        <p style="color: var(--text-secondary); margin-top: 4px;">Entenda como o DocFlow processa, compara e versiona seus documentos de auditoria.</p>
+    </div>
+
+    <!-- Seção 1: Como Funciona -->
+    <div class="card">
+        <h2>🔄 Ciclo de Vida do Documento</h2>
+        <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
+            O DocFlow é um sistema de controle de versão projetado para planilhas e relatórios estruturados. O ciclo de vida de um documento segue estas etapas:
+        </p>
+        <ol style="margin-left: 20px; color: var(--text-secondary); font-size: 14px; line-height: 1.8;">
+            <li><strong style="color: white;">Upload Inicial (v1):</strong> Quando você cria um documento, o primeiro arquivo enviado é a <strong style="color: var(--primary);">versão base (v1)</strong>. Esta versão é aprovada automaticamente.</li>
+            <li><strong style="color: white;">Novas Revisões (v2+):</strong> Ao fazer upload de uma nova planilha para o mesmo documento, ela entra como <strong style="color: var(--warning);">Pendente</strong>.</li>
+            <li><strong style="color: white;">Comparação Automática:</strong> O sistema analisa a nova versão comparando célula por célula com a última versão aprovada no banco de dados.</li>
+            <li><strong style="color: white;">Aprovação/Rejeição:</strong> Os auditores revisam as alterações e aprovam ou rejeitam a nova versão, registrando a decisão e comentários na trilha de auditoria.</li>
+        </ol>
+    </div>
+
+    <!-- Seção 2: Comparação de Dados -->
+    <div class="card">
+        <h2>🔍 Como a Comparação é Realizada</h2>
+        <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
+            A comparação não requer o armazenamento dos arquivos físicos no servidor. O DocFlow extrai o conteúdo das planilhas para o formato estruturado JSON diretamente na memória e salva no banco de dados.
+        </p>
+        <ul style="list-style: none; padding-left: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.8;">
+            <li style="margin-bottom: 10px;">
+                <span style="color: var(--primary); font-weight: bold; margin-right: 8px;">• Comparação por Célula:</span> O sistema compara a linha $R$ e coluna $C$ da aba $S$ em ambas as planilhas.
+            </li>
+            <li style="margin-bottom: 10px;">
+                <span style="color: var(--primary); font-weight: bold; margin-right: 8px;">• Tratamento de Abas:</span> Abas adicionadas ou removidas inteiras também são mapeadas e reportadas como modificações completas.
+            </li>
+            <li style="margin-bottom: 10px;">
+                <span style="color: var(--primary); font-weight: bold; margin-right: 8px;">• Deduplicação de Versões:</span> Arquivos com hash SHA-256 idêntico ao de uma versão anterior do mesmo documento são recusados no upload, evitando redundâncias.
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

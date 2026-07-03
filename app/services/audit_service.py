@@ -2,6 +2,7 @@
 
 from app.models import db, AuditLog, User
 from datetime import datetime
+# pyrefly: ignore [missing-import]
 from flask import request
 
 
@@ -78,14 +79,10 @@ class AuditService:
     @staticmethod
     def format_log(log):
         """Formata um log para exibição"""
-        # Usa o usuário do relacionamento se disponível (loaded via joinedload)
-        # Senão, tenta fazer uma query
         if hasattr(log, 'user') and log.user:
             user = log.user
         else:
             user = User.query.get(log.user_id)
-        
-        # Extrai informações do arquivo dos detalhes
         filename = 'N/A'
         file_size = None
         if log.details and 'filename' in log.details:

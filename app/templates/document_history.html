@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Histórico: {{ document.name }} - DocFlow{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+            <a href="{{ url_for('document.list_documents') }}" style="color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;">Documentos</a>
+            <span style="color: var(--text-secondary); font-size: 12px;">/</span>
+            <span style="color: white; font-size: 14px; font-weight: 600;">Histórico</span>
+        </div>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">{{ document.name }}</h1>
+        <p style="color: var(--text-secondary); margin-top: 4px; font-size: 14px;">Criado por <strong style="color: white;">{{ document.created_by.name }}</strong> em {{ document.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+    </div>
+    <a href="{{ url_for('document.upload', document_id=document.id) }}" class="btn btn-primary">
+        Enviar Nova Versão
+    </a>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">Linha do Tempo de Versões</h2>
+    
+    {% if versions %}
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Versão</th>
+                    <th>Arquivo Original</th>
+                    <th>Tamanho</th>
+                    <th>Enviado Por</th>
+                    <th>Enviado Em</th>
+                    <th>Diferenças Detectadas</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for version in versions %}
+                <tr>
+                    <td><span class="badge {% if version.status == 'approved' %}badge-approved{% elif version.status == 'rejected' %}badge-rejected{% else %}badge-pending{% endif %}" style="font-size: 13px; padding: 4px 10px;">v{{ version.version_number }}</span></td>
+                    <td style="font-family: monospace; font-size: 13px; color: var(--text-secondary);">{{ version.original_filename }}</td>
+                    <td style="color: var(--text-secondary);">{{ "%.2f"|format(version.file_size / 1024 / 1024) }} MB</td>
+                    <td>{{ version.uploaded_by }}</td>
+                    <td>{{ version.uploaded_at }}</td>
+                    <td>
+                        {% if version.version_number == 1 %}
+                            <span style="color: var(--text-secondary); font-size: 13px;">— (Versão Base)</span>
+                        {% else %}
+                            {% if version.differences_count > 0 %}
+                                <span style="font-weight: 600; color: #fcd34d;">
+                            {% else %}
+                                <span style="font-weight: 600; color: #34d399;">
+                            {% endif %}
+                                    {{ version.differences_count }} alterações
+                                </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if version.status == 'approved' %}badge-approved{% elif version.status == 'rejected' %}badge-rejected{% else %}badge-pending{% endif %}">
+                            {{ version.status|upper }}
+                        </span>
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="{{ url_for('document.view_version', version_id=version.id) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 6px;">
+                            Ver Detalhes
+                        </a>
+                    </td>
+                </tr>
+                
+                {% if version.decision_comment %}
+                <tr style="background: rgba(255, 255, 255, 0.01);">
+                    <td colspan="8" style="padding: 8px 16px 16px 36px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px; color: var(--text-secondary);">
+                        <div style="display: flex; gap: 10px; align-items: flex-start;">
+                            <span style="font-style: italic;">Comentário de Decisão:</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">"{{ version.decision_comment }}"</span>
+                            {% if version.status == 'approved' %}
+                                <span style="color: #6ee7b7; font-size: 11px;">(Aprovado por {{ version.approved_by }})</span>
+                            {% elif version.status == 'rejected' %}
+                                <span style="color: #fda4af; font-size: 11px;">(Rejeitado por {{ version.approved_by }})</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhuma versão encontrada para este documento.</p>
+    {% endif %}
+</div>
+{% endblock %}

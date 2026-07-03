@@ -1,69 +1,86 @@
 {% extends "base.html" %}
 
-{% block title %}Perfil - Loglife{% endblock %}
+{% block title %}Perfil - DocFlow{% endblock %}
 
 {% block content %}
-<h1>👤 Meu Perfil</h1>
+<div style="max-width: 800px; margin: 0 auto; width: 100%;">
+    <div style="margin-bottom: 25px;">
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">👤 Perfil de Usuário</h1>
+        <p style="color: var(--text-secondary); margin-top: 4px;">Informações cadastrais e histórico de interações com o sistema.</p>
+    </div>
 
-<div class="card">
-    <h2>Informações Pessoais</h2>
-    <table style="margin-top: 0;">
-        <tr>
-            <td><strong>Nome:</strong></td>
-            <td>{{ user.name }}</td>
-        </tr>
-        <tr>
-            <td><strong>Email:</strong></td>
-            <td>{{ user.email }}</td>
-        </tr>
-        <tr>
-            <td><strong>Cadastrado em:</strong></td>
-            <td>{{ user.created_at[:10] }}</td>
-        </tr>
-        <tr>
-            <td><strong>Status:</strong></td>
-            <td>
-                {% if user.is_active %}
-                <span style="color: #27ae60;">✅ Ativo</span>
-                {% else %}
-                <span style="color: #e74c3c;">❌ Inativo</span>
-                {% endif %}
-            </td>
-        </tr>
-    </table>
-</div>
-
-{% if recent_activity %}
-<div class="card">
-    <h2>🕐 Minhas Atividades Recentes</h2>
-    <table>
-        <thead>
+    <div class="card">
+        <h2>Dados Cadastrais</h2>
+        <table style="margin-top: 0;">
             <tr>
-                <th>Ação</th>
-                <th>Entidade</th>
-                <th>Data/Hora</th>
+                <td style="width: 180px; font-weight: 600; color: var(--text-secondary);">Nome Completo:</td>
+                <td style="font-weight: 600; color: white;">{{ user.name }}</td>
             </tr>
-        </thead>
-        <tbody>
-            {% for log in recent_activity %}
             <tr>
+                <td style="font-weight: 600; color: var(--text-secondary);">E-mail Corporativo:</td>
+                <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 600; color: var(--text-secondary);">Cadastrado Em:</td>
+                <td>{{ user.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 600; color: var(--text-secondary);">Status da Conta:</td>
                 <td>
-                    <span class="status-badge" style="background-color: #ecf0f1; color: #2c3e50;">
-                        {{ log.action|upper }}
-                    </span>
-                </td>
-                <td>
-                    {% if log.entity_type %}
-                        {{ log.entity_type }}
+                    {% if user.is_active %}
+                        <span class="badge badge-approved">Ativo</span>
                     {% else %}
-                        -
+                        <span class="badge badge-rejected">Inativo</span>
                     {% endif %}
                 </td>
-                <td>{{ log.created_at }}</td>
             </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        </table>
+    </div>
+
+    {% if recent_activity %}
+    <div class="card">
+        <h2>Minha Atividade Recente</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Operação</th>
+                        <th>Detalhes</th>
+                        <th>Data/Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_activity %}
+                    <tr>
+                        <td>
+                            <span class="badge" style="background-color: rgba(255,255,255,0.05); color: white; border-color: var(--border-color);">
+                                {{ log.action|upper }}
+                            </span>
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {% if log.action == 'login' %}
+                                Efetuou acesso ao sistema
+                            {% elif log.action == 'logout' %}
+                                Efetuou saída do sistema
+                            {% elif log.action == 'upload' %}
+                                Enviou v{{ log.details.version }} de {{ log.details.document_name }}
+                            {% elif log.action == 'upload_duplicate' %}
+                                Tentou enviar arquivo duplicado para o documento {{ log.details.document_name }}
+                            {% elif log.action == 'approve' %}
+                                Aprovou v{{ log.details.version }} de {{ log.details.document_name }}
+                            {% elif log.action == 'reject' %}
+                                Rejeitou v{{ log.details.version }} de {{ log.details.document_name }}
+                            {% else %}
+                                {{ log.details }}
+                            {% endif %}
+                        </td>
+                        <td>{{ log.created_at_formatted }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}

@@ -1,238 +1,110 @@
-# 🐍 Loglife - Sistema Python de Relatórios
+# 📁 DocFlow - Controle & Versionamento de Documentos
 
-Sistema web simples em Python (Flask) para:
-- ✅ Upload de relatórios (Excel, CSV, PDF)
-- 🔍 Comparação automática com versão SharePoint
-- ✅❌ Botões para Aceitar/Rejeitar mudanças
-- 📝 Auditoria completa: quem fez o quê, quando e de onde
-- 👥 Múltiplos usuários simultâneos
-- 🔒 Autenticação e controle de acesso
+DocFlow é um sistema web desenvolvido em Python (Flask) para gerenciamento, comparação e aprovação de documentos tabulares (Excel/CSV). O DocFlow rastreia e compara novas versões diretamente contra a versão aprovada anterior armazenada no próprio banco de dados do sistema.
 
-## 🚀 Início Rápido
+## 🚀 Fluxo de Trabalho
+1. **Upload Inicial (v1):** O usuário faz o upload de uma planilha que se torna a versão base (v1), aprovada automaticamente.
+2. **Nova Revisão (v2+):** O usuário envia uma nova planilha para o mesmo documento. O status entra como `PENDENTE`.
+3. **Análise de Diferenças:** O sistema compara o conteúdo célula por célula com a última versão aprovada e exibe as alterações.
+4. **Decisão:** O revisor aprova ou rejeita a nova versão com comentários.
+5. **Histórico e Auditoria:** Todas as ações, mudanças e decisões são gravadas em uma trilha de auditoria imutável.
+
+---
+
+## 💻 Recursos do Sistema
+- **Aparência Dark Premium:** Interface moderna baseada em glassmorphism com fontes Inter e visualização limpa.
+- **Diferenças em Células:** Detecção de modificações nas coordenadas exatas (Ex: Célula B2 alterada de `100` para `120`).
+- **Pré-visualização em Grid:** Veja as primeiras 15 linhas das planilhas diretamente no navegador sem precisar baixá-las.
+- **Prevenção de Duplicidade:** O upload calcula o hash SHA-256 do arquivo e bloqueia uploads de conteúdos idênticos.
+- **Histórico Completo:** Cada documento exibe sua linha do tempo de versões e comentários de aprovação.
+
+---
+
+## 🛠️ Início Rápido
 
 ### Pré-requisitos
-- Python 3.9+
-- pip
+- Python 3.12 ou superior
+- Pip
 
-### Instalação
+### Configuração do Ambiente
 
 ```bash
-# 1. Clonar e entrar na pasta
-cd loglife-python-app
+# 1. Clonar ou navegar até a pasta
+cd receipt-automation
 
 # 2. Criar ambiente virtual
-python -m venv venv
+python3.13 -m venv venv
 
-# 3. Ativar ambiente virtual
-# No Windows:
-venv\Scripts\activate
-# No Linux/Mac:
+# 3. Ativar o ambiente virtual
 source venv/bin/activate
 
-# 4. Instalar dependências
+# 4. Instalar as dependências do projeto
 pip install -r requirements.txt
+# Certifique-se de que sqlalchemy e werkzeug estejam em versões compatíveis (ex: SQLAlchemy>=2.0.25 para Python 3.13)
+```
 
-# 5. Copiar e configurar arquivo .env
+### Inicialização e Execução
+
+```bash
+# 1. Configurar variáveis de ambiente (.env)
+# O banco de dados SQLite será criado automaticamente
 cp .env.example .env
-# Editar .env com suas configurações
 
-# 6. Inicializar banco de dados
-python init_db.py
-
-# 7. Rodar aplicação
-python main.py
+# 2. Iniciar o servidor Flask
+python run_web.py
 ```
 
-A aplicação estará em: **http://localhost:5000**
+A aplicação estará acessível em: **http://localhost:5000**
 
-### Usuarios de Teste
+---
 
-**Padrão (criar novo usuário no registro):**
-- Email: você@email.com
-- Senha: sua-senha
-
-## 📋 Funcionalidades
-
-### 1. **Autenticação**
-- Registro de novo usuário
-- Login com email/senha
-- Logout
-- Perfil do usuário
-
-### 2. **Upload de Relatório**
-- Escolher arquivo (Excel, CSV, PDF)
-- Validação de tipo e tamanho
-- Armazenamento seguro com hash
-
-### 3. **Comparação com SharePoint**
-- Detecta diferenças célula por célula
-- Mostra antes/depois
-- Agrupa por planilha
-- Marca linhas com alterações
-
-### 4. **Aprovação/Rejeição**
-- Botões Aceitar e Rejeitar
-- Comentários obrigatórios/opcionais
-- Registro automático de quem decidiu e quando
-
-### 5. **Auditoria Completa**
-- Cada ação é registrada:
-  - Login/Logout
-  - Upload de relatório
-  - Comparação
-  - Aprovação/Rejeição
-  - Acesso a relatórios
-- Mostra: Usuário, Ação, Data, Hora, IP
-- Histórico por usuário
-- Histórico por relatório
-
-## 📁 Estrutura do Projeto
-
+## 📁 Estrutura de Diretórios
 ```
-loglife-python-app/
-├── main.py                 # Ponto de entrada
-├── requirements.txt        # Dependências Python
-├── .env                    # Variáveis de ambiente
-├── init_db.py             # Script para criar banco de dados
+receipt-automation/
+├── run_web.py             # Ponto de entrada da aplicação
+├── requirements.txt       # Dependências do Python
+├── .env                   # Variáveis de ambiente
+├── test_doc_v1.csv        # Massa de teste versão 1
+├── test_doc_v2.csv        # Massa de teste versão 2
 ├── app/
-│   ├── __init__.py        # Factory Flask
-│   ├── config.py          # Configurações
-│   ├── models.py          # Modelos SQLAlchemy
-│   ├── templates/         # Templates HTML
-│   │   ├── base.html
+│   ├── __init__.py        # Inicialização do App Flask e DB
+│   ├── config.py          # Configurações do app e SQLite
+│   ├── models.py          # Modelos de dados (User, Document, Version, Comparison, AuditLog)
+│   ├── templates/         # Interface e layouts de páginas
+│   │   ├── base.html      # Tema e estilos CSS base (Dark Glassmorphism)
 │   │   ├── login.html
 │   │   ├── register.html
 │   │   ├── dashboard.html
 │   │   ├── upload.html
-│   │   ├── report_view.html
-│   │   ├── report_list.html
-│   │   ├── audit_logs.html
-│   │   ├── profile.html
-│   │   └── error.html
-│   ├── static/            # CSS, JS, imagens
-│   ├── services/          # Lógica de negócio
-│   │   ├── audit_service.py
-│   │   ├── report_service.py
-│   │   ├── comparator_service.py
-│   │   └── sharepoint_service.py
-│   └── routes/            # Rotas HTTP
+│   │   ├── report_view.html    # Tela de revisão e comparação detalhada
+│   │   ├── document_list.html  # Lista de documentos
+│   │   ├── document_history.html # Linha do tempo de versões do documento
+│   │   ├── audit_logs.html     # Trilha de auditoria geral
+│   │   └── profile.html        # Perfil e histórico do usuário
+│   ├── services/          # Serviços de negócio
+│   │   ├── document_service.py # Uploads, hashing, persistência
+│   │   ├── comparator_service.py # Algoritmo de diff de planilhas
+│   │   └── audit_service.py    # Geração de logs imutáveis
+│   └── routes/            # Controladores de rota
 │       ├── auth_routes.py
-│       ├── report_routes.py
+│       ├── document_routes.py
 │       ├── audit_routes.py
 │       └── main.py
-├── uploads/               # Arquivos enviados (gitignore)
-└── loglife.db            # Banco SQLite (gitignore)
 ```
-
-## 🗄️ Banco de Dados
-
-### Tabelas
-
-**users**
-- id, email, name, password_hash, is_active, created_at, updated_at
-
-**reports**
-- id, filename, original_filename, file_path, file_size, file_hash
-- uploaded_by_id (FK users), status (pending/approved/rejected)
-- approved_at, rejected_at, decision_by_id (FK users), decision_comment
-- created_at, updated_at
-
-**comparisons**
-- id, report_id (FK reports), differences_count, differences_data (JSON)
-- sharepoint_file_path, sharepoint_version, created_at
-
-**audit_logs**
-- id, user_id (FK users), action, entity_type, entity_id
-- details (JSON), ip_address, user_agent, created_at
-
-## 🔧 Configuração
-
-Editar `.env`:
-
-```env
-# Flask
-FLASK_ENV=development
-SECRET_KEY=seu-secret-key-aqui
-
-# Banco de dados
-DATABASE_URL=sqlite:///loglife.db
-
-# SharePoint (para integração futura)
-SHAREPOINT_SITE_URL=https://seu-sharepoint.sharepoint.com
-SHAREPOINT_LIBRARY=Documentos Compartilhados
-
-# Azure AD (para integração futura)
-AZURE_TENANT_ID=
-AZURE_CLIENT_ID=
-AZURE_CLIENT_SECRET=
-
-# Upload
-MAX_CONTENT_LENGTH=52428800
-UPLOAD_FOLDER=uploads
-```
-
-## 📊 Fluxo Típico
-
-```
-1. Usuário faz LOGIN
-   └→ Auditoria: "login" gravada
-
-2. Usuário ENVIA RELATÓRIO
-   ├→ Arquivo armazenado
-   └→ Auditoria: "upload" gravada
-
-3. Sistema COMPARA com SharePoint
-   ├→ Detecta diferenças
-   └→ Auditoria: "view_comparison" gravada
-
-4. Usuário ACEITA ou REJEITA
-   ├→ Status do relatório atualizado
-   ├→ Nome de quem decidiu registrado
-   └→ Auditoria: "approve" ou "reject" gravada
-
-5. Usuário consulta AUDITORIA
-   └→ Vê histórico completo
-```
-
-## 🔒 Segurança
-
-- ✅ Senhas com hashing (werkzeug)
-- ✅ Session segura (cookies HTTP-only)
-- ✅ CSRF protection (implementar)
-- ✅ Auditoria de todas as ações
-- ✅ Rastreamento de IP
-- 📋 TODO: HTTPS em produção
-- 📋 TODO: Rate limiting
-- 📋 TODO: 2FA
-
-## 🚀 Próximos Passos
-
-### Para Produção
-- [ ] Integração real com Azure AD
-- [ ] Integração real com SharePoint (Graph API)
-- [ ] HTTPS/SSL
-- [ ] Backup automático do banco
-- [ ] Rate limiting
-- [ ] 2FA
-- [ ] Logs em arquivo
-- [ ] Deploy (Docker, Heroku, AWS)
-
-### Features
-- [ ] Notificações por email
-- [ ] Exportar auditoria em PDF
-- [ ] Busca avançada de relatórios
-- [ ] Alertas automáticos
-- [ ] Workflow de aprovação
-- [ ] Versionamento de comparações
-- [ ] API REST pública
-
-## 📧 Suporte
-
-Para dúvidas ou sugestões, entre em contato com a equipe de desenvolvimento.
-
-## 📄 Licença
-
-Propriedade da Loglife. Todos os direitos reservados.
 
 ---
 
+## 🗄️ Modelo do Banco de Dados (SQLite)
+
+- **User**: Informações de acesso, e-mail e hash da senha.
+- **Document**: Container do documento criado, rastreando o autor e a data de criação.
+- **DocumentVersion**: Contém os metadados do arquivo (tamanho, hash SHA-256), o status (`pending`/`approved`/`rejected`), comentários de decisão e os dados em formato JSON serializado na coluna `extracted_data`.
+- **Comparison**: Armazena a contagem de diferenças e o dicionário de alterações entre a versão nova e a versão aprovada anterior.
+- **AuditLog**: Tabela imutável que armazena a ação (ex: `login`, `upload`, `approve`), o IP do cliente e detalhes de auditoria.
+
+---
+
+## 🔒 Segurança e Conformidade
+- **Hashing de Senhas:** Senhas criptografadas usando o algoritmo PBKDF2 via `werkzeug.security`.
+- **Prevenção de Colisão:** Arquivos duplicados são detectados na origem via hash SHA-256 e impedidos de gerar novas versões redundantes.
+- **Trilha de Auditoria:** Rastreabilidade completa de ações administrativas por endereço de IP e ID de usuário.

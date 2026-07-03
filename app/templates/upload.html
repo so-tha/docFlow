@@ -1,63 +1,141 @@
 {% extends "base.html" %}
 
-{% block title %}Enviar Relatório - Loglife{% endblock %}
+{% block title %}Enviar Versão - DocFlow{% endblock %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
-    <h1>📤 Enviar Novo Relatório</h1>
-
-    {% if error %}
-    <div class="alert alert-error">{{ error }}</div>
-    {% endif %}
+<div style="max-width: 650px; margin: 0 auto; width: 100%;">
+    <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 25px;">📤 Enviar Documento / Versão</h1>
 
     <div class="card">
-        <h2>Selecione um arquivo</h2>
+        <h2 style="margin-bottom: 20px;">📂 Upload de Arquivo</h2>
 
         <form method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="file">Arquivo (Excel, CSV ou PDF)</label>
-                <div class="file-upload">
-                    <label for="file" class="file-label">
-                        📁 Escolher arquivo...
+            <!-- Tipo de Upload (Novo ou Nova Versão) -->
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label style="margin-bottom: 10px;">O que você deseja fazer?</label>
+                <div style="display: flex; gap: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; color: var(--text-primary);">
+                        <input type="radio" name="upload_type" value="new" checked onclick="toggleUploadType('new')" style="accent-color: var(--primary);">
+                        Criar Novo Documento (v1)
                     </label>
-                    <input type="file" id="file" name="file" 
-                           accept=".xlsx,.xls,.csv,.pdf" required
-                           onchange="updateFileName(this)">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; color: var(--text-primary);">
+                        <input type="radio" name="upload_type" value="version" onclick="toggleUploadType('version')" style="accent-color: var(--primary);" {% if not documents %}disabled{% endif %}>
+                        Enviar Nova Versão de Documento Existente
+                    </label>
                 </div>
-                <p id="file-name" style="margin-top: 10px; color: #7f8c8d;">
-                    Nenhum arquivo selecionado
-                </p>
             </div>
 
-            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 16px;">
-                ✅ Enviar Relatório
+            <!-- Campo: Nome do Novo Documento (Exibido para Novo) -->
+            <div class="form-group" id="group-new-doc">
+                <label for="document_name">Nome do Novo Documento</label>
+                <input type="text" id="document_name" name="document_name" placeholder="Ex: Relatório de Despesas Q2 2026">
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 6px;">Esta primeira versão será aprovada como a base histórica (v1) do documento.</p>
+            </div>
+
+            <!-- Campo: Selecionar Documento Existente (Exibido para Nova Versão) -->
+            <div class="form-group" id="group-existing-doc" style="display: none;">
+                <label for="document_id">Selecionar Documento</label>
+                <select id="document_id" name="document_id">
+                    <option value="" disabled selected>-- Selecione o documento --</option>
+                    {% for doc in documents %}
+                        <option value="{{ doc.id }}" {% if doc.id == selected_doc_id %}selected{% endif %}>{{ doc.name }}</option>
+                    {% endfor %}
+                </select>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 6px;">O sistema comparará o novo arquivo com a última versão aprovada deste documento.</p>
+            </div>
+
+            <!-- Upload do Arquivo -->
+            <div class="form-group" style="margin-top: 25px;">
+                <label>Selecionar Arquivo</label>
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <label for="file" class="btn btn-secondary" style="border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 15px 30px; display: inline-flex; width: 100%; text-align: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.02);" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                        📁 Selecionar Arquivo do Computador
+                    </label>
+                    <input type="file" id="file" name="file" accept=".xlsx,.xls,.csv" required style="display: none;" onchange="updateFileName(this)">
+                </div>
+                <div id="file-details" style="display: none; align-items: center; gap: 10px; margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 8px;">
+                    <span style="font-size: 20px;">📄</span>
+                    <div style="flex-grow: 1;">
+                        <div id="file-name" style="font-weight: 600; font-size: 14px;"></div>
+                        <div id="file-size" style="font-size: 12px; color: var(--text-secondary);"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; margin-top: 15px;">
+                🚀 Enviar e Comparar
             </button>
         </form>
     </div>
 
     <div class="card">
-        <h3>📋 Informações Importantes</h3>
-        <ul style="list-style: none; padding-left: 0;">
-            <li style="padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
-                ✓ Formatos aceitos: Excel (.xlsx, .xls), CSV, PDF
+        <h3 style="font-size: 18px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px;">
+            <span>ℹ️</span> Informações de Upload
+        </h3>
+        <ul style="list-style: none; padding-left: 0; margin-top: 15px;">
+            <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
+                <span style="color: var(--primary);">✓</span> Formatos aceitos: Planilhas Excel (.xlsx, .xls) e arquivos de texto estruturados (.csv).
             </li>
-            <li style="padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
-                ✓ Tamanho máximo: 50MB
+            <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
+                <span style="color: var(--primary);">✓</span> Limite de tamanho: 50MB por arquivo.
             </li>
-            <li style="padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
-                ✓ Após envio, você será levado para a página de comparação
+            <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
+                <span style="color: var(--primary);">✓</span> Algoritmo de Deduplicação SHA-256 ativo: Arquivos com o mesmo conteúdo não criarão novas versões redundantes.
             </li>
-            <li style="padding: 8px 0;">
-                ✓ Seu relatório será comparado com a versão do SharePoint
+            <li style="padding: 10px 0; display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
+                <span style="color: var(--primary);">✓</span> A primeira versão de um novo documento é considerada "Base" e aprovada automaticamente para fins de comparação.
             </li>
         </ul>
     </div>
 </div>
 
 <script>
+function toggleUploadType(type) {
+    const groupNew = document.getElementById('group-new-doc');
+    const groupExisting = document.getElementById('group-existing-doc');
+    const docNameInput = document.getElementById('document_name');
+    const docIdSelect = document.getElementById('document_id');
+    
+    if (type === 'new') {
+        groupNew.style.display = 'block';
+        groupExisting.style.display = 'none';
+        docNameInput.setAttribute('required', 'required');
+        docIdSelect.removeAttribute('required');
+    } else {
+        groupNew.style.display = 'none';
+        groupExisting.style.display = 'block';
+        docNameInput.removeAttribute('required');
+        docIdSelect.setAttribute('required', 'required');
+    }
+}
+
 function updateFileName(input) {
-    const fileName = input.files[0]?.name || 'Nenhum arquivo selecionado';
-    document.getElementById('file-name').textContent = '📄 ' + fileName;
+    const file = input.files[0];
+    const detailsContainer = document.getElementById('file-details');
+    
+    if (file) {
+        detailsContainer.style.display = 'flex';
+        document.getElementById('file-name').textContent = file.name;
+        
+        // Formatar tamanho do arquivo
+        let sizeFormatted = "";
+        if (file.size < 1024) sizeFormatted = file.size + " Bytes";
+        else if (file.size < 1048576) sizeFormatted = (file.size / 1024).toFixed(1) + " KB";
+        else sizeFormatted = (file.size / 1048576).toFixed(1) + " MB";
+        
+        document.getElementById('file-size').textContent = sizeFormatted;
+    } else {
+        detailsContainer.style.display = 'none';
+    }
+}
+
+// Inicializar formulário
+window.onload = function() {
+    {% if selected_doc_id %}
+        document.querySelector('input[name="upload_type"][value="version"]').click();
+    {% else %}
+        toggleUploadType('new');
+    {% endif %}
 }
 </script>
 {% endblock %}

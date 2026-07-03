@@ -1,9 +1,11 @@
 """Rotas principais - Dashboard e páginas gerais"""
 
-from flask import Blueprint, render_template
+# pyrefly: ignore [missing-import]
+from flask import Blueprint, render_template, redirect, url_for
+# pyrefly: ignore [missing-import]
 from flask_login import login_required, current_user
-from app.services import ReportService, AuditService
-from app.models import Report
+from app.services import DocumentService, AuditService
+from app.models import Document, DocumentVersion
 
 main_bp = Blueprint('main', __name__)
 
@@ -20,34 +22,36 @@ def index():
 @login_required
 def dashboard():
     """Dashboard principal"""
-    # Dados para o dashboard
-    pending_reports = ReportService.get_pending_reports(limit=5)
-    recent_reports = ReportService.get_report_by_user(current_user.id, limit=10)
+    pending_versions = DocumentVersion.query.filter_by(status='pending').order_by(
+        DocumentVersion.created_at.desc()
+    ).limit(5).all()
+    formatted_pending = [DocumentService.format_version(v) for v in pending_versions]
+    recent_versions = DocumentVersion.query.filter_by(uploaded_by_id=current_user.id).order_by(
+        DocumentVersion.created_at.desc()
+    ).limit(10).all()
+    formatted_recent = [DocumentService.format_version(v) for v in recent_versions]
     recent_activity = AuditService.get_user_activity(current_user.id, limit=5)
-    
-    # Estatísticas
-    total_reports = Report.query.count()
-    pending_count = Report.query.filter_by(status='pending').count()
-    approved_count = Report.query.filter_by(status='approved').count()
+    formatted_activity = [AuditService.format_log(log) for log in recent_activity]
+    total_docs = Document.query.count()
+    pending_count = DocumentVersion.query.filter_by(status='pending').count()
+    approved_count = DocumentVersion.query.filter_by(status='approved').count()
+    rejected_count = DocumentVersion.query.filter_by(status='rejected').count()
     
     stats = {
-        'total_reports': total_reports,
-        'pending': pending_count,
-        'approved': approved_count,
-        'rejected': total_reports - pending_count - approved_count
+        'total_documents': total_docs,
+        'pending_versions': pending_count,
+        'approved_versions': approved_count,
+        'rejected_versions': rejected_count
     }
     
     return render_template('dashboard.html',
-                         pending_reports=pending_reports,
-                         recent_reports=recent_reports,
-                         recent_activity=recent_activity,
-                         stats=stats)
+                           pending_reports=formatted_pending,
+                           recent_reports=formatted_recent,
+                           recent_activity=formatted_activity,
+                           stats=stats)
 
 
 @main_bp.route('/help')
 def help():
     """Página de help/documentação"""
     return render_template('help.html')
-
-
-from flask import redirect, url_for

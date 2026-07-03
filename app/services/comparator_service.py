@@ -1,74 +1,19 @@
-"""Serviço de Comparação - Compara dados extraídos com SharePoint"""
+"""Serviço de Comparação - Compara dados extraídos entre duas versões de documento"""
 
-import openpyxl
 from openpyxl.utils import get_column_letter
-from difflib import unified_diff
-import csv
-from app.models import db, Comparison, Report
+from app.models import db, Comparison, DocumentVersion
 
 
 class ComparatorService:
     
     @staticmethod
-    def identify_new_rows(extracted_data, sharepoint_data, sheet_name):
+    def compare_versions(new_version_id, old_version_id=None):
         """
-        Identifica linhas novas na comparação
-        
-        Uma linha é considerada "nova" se não existe no SharePoint
-        Comparação: converte cada linha em tupla para comparação
+        Compara a nova versão com uma versão anterior (geralmente a última aprovada)
         
         Args:
-            extracted_data: {sheet_name: [[rows]]} do arquivo enviado
-            sharepoint_data: {sheet_name: [[rows]]} do SharePoint
-            sheet_name: Nome da sheet onde buscar dados
-        
-        Returns:
-            [[new_rows]] apenas as linhas que não existem no SharePoint
-        """
-        try:
-            # Pegar dados da sheet específica
-            new_data = extracted_data.get(sheet_name, [])
-            sp_data = sharepoint_data.get(sheet_name, [])
-            
-            if not new_data:
-                return []
-            
-            # Converter SharePoint rows para set de tuplas para comparação rápida
-            sp_rows_set = set()
-            for row in sp_data[1:] if len(sp_data) > 1 else []:  # Pular header
-                # Converter None para string vazia para comparação consistente
-                clean_row = tuple(str(cell) if cell is not None else '' for cell in row)
-                sp_rows_set.add(clean_row)
-            
-            # Identificar linhas novas
-            new_rows = []
-            new_row_indices = []
-            for idx, row in enumerate(new_data[1:], start=2):  # Começar do 2 (line 1 é header)
-                clean_row = tuple(str(cell) if cell is not None else '' for cell in row)
-                
-                # Se linha não existe no SharePoint, é nova
-                if clean_row not in sp_rows_set:
-                    new_rows.append(row)
-                    new_row_indices.append(idx)
-            
-            return {
-                'new_rows': new_rows,
-                'new_row_indices': new_row_indices,
-                'count': len(new_rows)
-            }
-        
-        except Exception as e:
-            raise Exception(f"Erro ao identificar linhas novas: {str(e)}")
-    
-    @staticmethod
-    def compare_extracted_data(report_id, extracted_data, sharepoint_data):
-        """
-        Compara dados extraídos do arquivo com dados do SharePoint
-        
-        Args:
-            report_id: ID do relatório
-            extracted_data: {sheet_name: [[rows]]} do arquivo enviado
-            sharepoint_data: {sheet_name: [[rows]]} do SharePoint
+            new_version_id: ID da nova versão (DocumentVersion)
+            old_version_id: ID da versão anterior (DocumentVersion), ou None se for a primeira versão
             
         Returns:
             {
@@ -78,7 +23,7 @@ class ComparatorService:
                         'sheet': 'Planilha1',
                         'row': 5,
                         'col': 'A',
-                        'sharepoint_value': 'valor_antigo',
+                        'old_value': 'valor_antigo',
                         'new_value': 'valor_novo'
                     }
                 ],
@@ -86,44 +31,99 @@ class ComparatorService:
             }
         """
         try:
-            differences = []
-            
-            # Comparar sheets comuns
-            common_sheets = set(extracted_data.keys()) & set(sharepoint_data.keys())
-            
-            for sheet_name in common_sheets:
-                new_rows = extracted_data[sheet_name]
-                sp_rows = sharepoint_data[sheet_name]
+            new_version = DocumentVersion.query.get(new_version_id)
+            if not new_version:
+                raise ValueError("Nova versão não encontrada")
                 
-                max_rows = max(len(new_rows), len(sp_rows))
+            differences = []
+            if not old_version_id:
+                comparison = Comparison(
+                    document_version_id=new_version_id,
+                    compare_version_id=None,
+                    differences_count=0,
+                    differences_data={'differences': []}
+                )
+                db.session.add(comparison)
+                db.session.commit()
+                
+                return {
+                    'differences_count': 0,
+                    'differences': [],
+                    'comparison_id': comparison.id
+                }
+                
+            old_version = DocumentVersion.query.get(old_version_id)
+            if not old_version:
+                raise ValueError("Versão anterior não encontrada")
+                
+            extracted_data = new_version.extracted_data or {}
+            old_data = old_version.extracted_data or {}
+            new_sheets = set(extracted_data.keys())
+            old_sheets = set(old_data.keys())
+            all_sheets = new_sheets | old_sheets
+            
+            for sheet_name in all_sheets:
+                if sheet_name not in old_sheets:
+                    new_rows = extracted_data[sheet_name]
+                    for r_idx, row in enumerate(new_rows):
+                        for c_idx, cell in enumerate(row):
+                            if cell is not None and cell != '':
+                                differences.append({
+                                    'sheet': sheet_name,
+                                    'row': r_idx + 1,
+                                    'col': get_column_letter(c_idx + 1),
+                                    'old_value': '',
+                                    'new_value': str(cell)
+                                })
+                    continue
+                if sheet_name not in new_sheets:
+                    old_rows = old_data[sheet_name]
+                    for r_idx, row in enumerate(old_rows):
+                        for c_idx, cell in enumerate(row):
+                            if cell is not None and cell != '':
+                                differences.append({
+                                    'sheet': sheet_name,
+                                    'row': r_idx + 1,
+                                    'col': get_column_letter(c_idx + 1),
+                                    'old_value': str(cell),
+                                    'new_value': ''
+                                })
+                    continue
+                new_rows = extracted_data[sheet_name]
+                old_rows = old_data[sheet_name]
+                
+                max_rows = max(len(new_rows), len(old_rows))
                 
                 for row_idx in range(max_rows):
                     new_row = new_rows[row_idx] if row_idx < len(new_rows) else []
-                    sp_row = sp_rows[row_idx] if row_idx < len(sp_rows) else []
+                    old_row = old_rows[row_idx] if row_idx < len(old_rows) else []
                     
-                    max_cols = max(len(new_row), len(sp_row))
+                    max_cols = max(len(new_row), len(old_row))
                     
                     for col_idx in range(max_cols):
                         new_val = new_row[col_idx] if col_idx < len(new_row) else None
-                        sp_val = sp_row[col_idx] if col_idx < len(sp_row) else None
+                        old_val = old_row[col_idx] if col_idx < len(old_row) else None
                         
-                        if new_val != sp_val:
+                        if new_val != old_val:
+                            if (new_val is None or new_val == '') and (old_val is None or old_val == ''):
+                                continue
+                                
                             differences.append({
                                 'sheet': sheet_name,
                                 'row': row_idx + 1,
                                 'col': get_column_letter(col_idx + 1),
-                                'sharepoint_value': str(sp_val) if sp_val is not None else '',
+                                'old_value': str(old_val) if old_val is not None else '',
                                 'new_value': str(new_val) if new_val is not None else ''
                             })
             
-            # Registrar comparação no banco
             comparison = Comparison(
-                report_id=report_id,
+                document_version_id=new_version_id,
+                compare_version_id=old_version_id,
                 differences_count=len(differences),
                 differences_data={
                     'differences': differences,
-                    'extracted_sheets': list(extracted_data.keys()),
-                    'sharepoint_sheets': list(sharepoint_data.keys())
+                    'new_sheets': list(new_sheets),
+                    'old_sheets': list(old_sheets)
                 }
             )
             db.session.add(comparison)
@@ -138,132 +138,7 @@ class ComparatorService:
         except Exception as e:
             db.session.rollback()
             raise Exception(f"Erro ao comparar dados: {str(e)}")
-    
-    @staticmethod
-    def compare_excel_files(file_path_1, file_path_2, report_id=None):
-        """
-        Compara dois arquivos Excel e retorna as diferenças
-        
-        Args:
-            file_path_1: Caminho do arquivo novo (enviado pelo usuário)
-            file_path_2: Caminho do arquivo antigo (SharePoint)
-            report_id: ID do relatório para registrar a comparação
             
-        Returns:
-            {
-                'differences_count': int,
-                'differences': [
-                    {
-                        'sheet': 'Planilha1',
-                        'row': 5,
-                        'col': 'A',
-                        'current': 'valor_antigo',
-                        'new': 'valor_novo'
-                    }
-                ],
-                'comparison_id': str
-            }
-        """
-        try:
-            wb1 = openpyxl.load_workbook(file_path_1, data_only=True)
-            wb2 = openpyxl.load_workbook(file_path_2, data_only=True)
-            
-            differences = []
-            
-            # Comparar planilhas comuns
-            common_sheets = set(wb1.sheetnames) & set(wb2.sheetnames)
-            
-            for sheet_name in common_sheets:
-                ws1 = wb1[sheet_name]
-                ws2 = wb2[sheet_name]
-                
-                # Encontrar dimensões máximas
-                max_row = max(ws1.max_row, ws2.max_row)
-                max_col = max(ws1.max_column, ws2.max_column)
-                
-                for row in range(1, max_row + 1):
-                    for col in range(1, max_col + 1):
-                        cell1 = ws1.cell(row, col).value
-                        cell2 = ws2.cell(row, col).value
-                        
-                        if cell1 != cell2:
-                            differences.append({
-                                'sheet': sheet_name,
-                                'row': row,
-                                'col': get_column_letter(col),
-                                'current': str(cell2) if cell2 is not None else '',
-                                'new': str(cell1) if cell1 is not None else ''
-                            })
-            
-            # Registrar comparação no banco
-            comparison = None
-            if report_id:
-                comparison = Comparison(
-                    report_id=report_id,
-                    differences_count=len(differences),
-                    differences_data={'differences': differences}
-                )
-                db.session.add(comparison)
-                db.session.commit()
-            
-            return {
-                'differences_count': len(differences),
-                'differences': differences,
-                'comparison_id': comparison.id if comparison else None
-            }
-            
-        except Exception as e:
-            raise Exception(f"Erro ao comparar arquivos: {str(e)}")
-    
-    @staticmethod
-    def compare_csv_files(file_path_1, file_path_2, report_id=None):
-        """Compara dois arquivos CSV"""
-        try:
-            with open(file_path_1, 'r', encoding='utf-8') as f1, \
-                 open(file_path_2, 'r', encoding='utf-8') as f2:
-                
-                rows1 = list(csv.reader(f1))
-                rows2 = list(csv.reader(f2))
-                
-                differences = []
-                max_rows = max(len(rows1), len(rows2))
-                
-                for row_idx in range(max_rows):
-                    row1 = rows1[row_idx] if row_idx < len(rows1) else []
-                    row2 = rows2[row_idx] if row_idx < len(rows2) else []
-                    
-                    max_cols = max(len(row1), len(row2))
-                    
-                    for col_idx in range(max_cols):
-                        val1 = row1[col_idx] if col_idx < len(row1) else ''
-                        val2 = row2[col_idx] if col_idx < len(row2) else ''
-                        
-                        if val1 != val2:
-                            differences.append({
-                                'row': row_idx + 1,
-                                'col': col_idx + 1,
-                                'current': val2,
-                                'new': val1
-                            })
-            
-            comparison = None
-            if report_id:
-                comparison = Comparison(
-                    report_id=report_id,
-                    differences_count=len(differences),
-                    differences_data={'differences': differences}
-                )
-                db.session.add(comparison)
-                db.session.commit()
-            
-            return {
-                'differences_count': len(differences),
-                'differences': differences,
-                'comparison_id': comparison.id if comparison else None
-            }
-        except Exception as e:
-            raise Exception(f"Erro ao comparar CSV: {str(e)}")
-    
     @staticmethod
     def get_comparison(comparison_id):
         """Retorna detalhes de uma comparação"""
