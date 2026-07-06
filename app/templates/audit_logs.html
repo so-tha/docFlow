@@ -17,8 +17,8 @@
     
     .audit-card:hover {
         transform: translateY(-2px);
-        border-color: rgba(255,255,255,0.12);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border-color: var(--primary-glow);
+        box-shadow: var(--card-shadow);
     }
     
     .audit-card.upload {
@@ -53,7 +53,7 @@
     }
     
     .audit-user strong {
-        color: white;
+        color: var(--text-primary);
         font-size: 15px;
         display: block;
     }
@@ -75,46 +75,47 @@
     
     .audit-action-badge.upload {
         background-color: var(--primary-glow);
-        color: #a5b4fc;
-        border: 1px solid rgba(99, 102, 241, 0.2);
+        color: var(--primary);
+        border: 1px solid var(--border-color);
     }
     
     .audit-action-badge.approve {
         background-color: var(--success-glow);
-        color: #6ee7b7;
-        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: var(--success);
+        border: 1px solid var(--border-color);
     }
     
     .audit-action-badge.reject {
         background-color: var(--danger-glow);
-        color: #fda4af;
-        border: 1px solid rgba(244, 63, 94, 0.2);
+        color: var(--danger);
+        border: 1px solid var(--border-color);
     }
     
     .audit-action-badge.login {
         background-color: var(--warning-glow);
-        color: #fde047;
-        border: 1px solid rgba(245, 158, 11, 0.2);
+        color: var(--secondary);
+        border: 1px solid var(--border-color);
     }
     
     .audit-action-badge.logout {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: var(--input-bg);
         color: var(--text-secondary);
         border: 1px solid var(--border-color);
     }
     
     .audit-content {
         padding-top: 15px;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid var(--border-color);
     }
     
     .audit-details-box {
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: var(--input-bg);
         border: 1px solid var(--border-color);
         padding: 12px 15px;
         border-radius: 8px;
         margin: 10px 0;
         font-size: 13px;
+        color: var(--text-primary);
     }
     
     .audit-meta-bar {
@@ -133,7 +134,7 @@
     }
     
     .audit-meta-item strong {
-        color: white;
+        color: var(--text-primary);
     }
 </style>
 {% endblock %}
@@ -141,8 +142,8 @@
 {% block content %}
 <div style="max-width: 900px; margin: 0 auto; width: 100%;">
     <div style="margin-bottom: 30px;">
-        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">📝 Trilha de Auditoria</h1>
-        <p style="color: var(--text-secondary); margin-top: 4px;">Histórico imutável de todas as ações de usuários efetuadas no sistema para fins de conformidade e segurança.</p>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Auditoria</h1>
+        <p style="color: var(--text-secondary); margin-top: 4px;">Histórico de ações realizadas no sistema.</p>
     </div>
     
     {% if logs %}
@@ -150,7 +151,7 @@
         <div class="audit-card {{ log.action|lower }}">
             <div class="audit-header">
                 <div class="audit-user">
-                    <strong>👤 {{ log.user_name }}</strong>
+                    <strong>{{ log.user_name }}</strong>
                     <small>{{ log.user_email }}</small>
                 </div>
                 <div class="audit-action-badge {{ log.action|lower }}">
@@ -161,21 +162,21 @@
             <div class="audit-content">
                 <div class="audit-details-box">
                     {% if log.action == 'login' %}
-                        <span>🚪</span> O usuário efetuou o acesso ao sistema.
+                        <span>O usuário efetuou o acesso ao sistema.</span>
                     {% elif log.action == 'logout' %}
-                        <span>🚪</span> O usuário encerrou a sessão.
+                        <span>O usuário encerrou a sessão.</span>
                     {% elif log.action == 'register' %}
-                        <span>👤</span> Uma nova conta de usuário foi criada.
+                        <span>Uma nova conta de usuário foi criada.</span>
                     {% elif log.action == 'upload' %}
-                        <span>📤</span> Enviou a versão <strong>v{{ log.details.version }}</strong> do documento <strong>{{ log.details.document_name }}</strong> (Arquivo: <code style="color: #c084fc;">{{ log.details.filename }}</code>).
+                        <span>Enviou a versão <strong>v{{ log.details.version }}</strong> do documento <strong>{{ log.details.document_name }}</strong> (Arquivo: <code>{{ log.details.filename }}</code>).</span>
                     {% elif log.action == 'upload_duplicate' %}
-                        <span>📤</span> Tentou enviar arquivo duplicado para o documento <strong>{{ log.details.document_name }}</strong> (Versão detectada: <strong>v{{ log.details.version }}</strong>).
+                        <span>Tentou enviar arquivo duplicado para o documento <strong>{{ log.details.document_name }}</strong> (Versão detectada: <strong>v{{ log.details.version }}</strong>).</span>
                     {% elif log.action == 'approve' %}
-                        <span>✓</span> Aprovou a versão <strong>v{{ log.details.version }}</strong> do documento <strong>{{ log.details.document_name }}</strong>.
-                        <div style="margin-top: 8px; font-style: italic; color: #34d399;">"{{ log.details.comment }}"</div>
+                        <span>Aprovou a versão <strong>v{{ log.details.version }}</strong> do documento <strong>{{ log.details.document_name }}</strong>.</span>
+                        <div style="margin-top: 8px; font-style: italic; color: var(--success);">"{{ log.details.comment }}"</div>
                     {% elif log.action == 'reject' %}
-                        <span>❌</span> Rejeitou a versão <strong>v{{ log.details.version }}</strong> do documento <strong>{{ log.details.document_name }}</strong>.
-                        <div style="margin-top: 8px; font-style: italic; color: #fda4af;">"{{ log.details.comment }}"</div>
+                        <span>Rejeitou a versão <strong>v{{ log.details.version }}</strong> do documento <strong>{{ log.details.document_name }}</strong>.</span>
+                        <div style="margin-top: 8px; font-style: italic; color: var(--danger);">"{{ log.details.comment }}"</div>
                     {% else %}
                         {{ log.details }}
                     {% endif %}
@@ -183,18 +184,18 @@
                 
                 <div class="audit-meta-bar">
                     <div class="audit-meta-item">
-                        <strong>⏰ Horário:</strong>
+                        <strong>Horário:</strong>
                         <span>{{ log.created_at_formatted }}</span>
                     </div>
                     {% if log.ip_address %}
                     <div class="audit-meta-item">
-                        <strong>🔗 IP:</strong>
+                        <strong>IP:</strong>
                         <span style="font-family: monospace;">{{ log.ip_address }}</span>
                     </div>
                     {% endif %}
                     {% if log.entity_type %}
                     <div class="audit-meta-item">
-                        <strong>📋 Entidade:</strong>
+                        <strong>Entidade:</strong>
                         <span style="font-family: monospace; color: var(--text-secondary);">{{ log.entity_type }} [{{ log.entity_id[:8] }}...]</span>
                     </div>
                     {% endif %}
@@ -204,9 +205,8 @@
         {% endfor %}
     {% else %}
     <div class="card" style="text-align: center; padding: 50px 20px;">
-        <span style="font-size: 50px; display: block; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.2));">📭</span>
-        <h3 style="color: white; font-weight: 700; margin-bottom: 10px;">Sem registros de auditoria</h3>
-        <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto;">Nenhuma atividade foi registrada até o momento no sistema.</p>
+        <h3 style="color: var(--text-primary); font-weight: 700; margin-bottom: 10px;">Sem registros de auditoria</h3>
+        <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto;">Nenhuma atividade foi registrada até o momento.</p>
     </div>
     {% endif %}
 </div>

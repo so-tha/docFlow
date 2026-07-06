@@ -9,7 +9,7 @@
         overflow: auto;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background-color: rgba(0,0,0,0.15);
+        background-color: var(--input-bg);
     }
     
     .tab-bar {
@@ -34,7 +34,7 @@
     }
     
     .tab-btn:hover {
-        color: white;
+        color: var(--text-primary);
     }
     
     .tab-btn.active {
@@ -81,14 +81,14 @@
 <div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
     <div>
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-            <a href="{{ url_for('document.list_documents') }}" style="color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;">📁 Documentos</a>
+            <a href="{{ url_for('document.list_documents') }}" style="color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;">Documentos</a>
             <span style="color: var(--text-secondary); font-size: 12px;">/</span>
             <a href="{{ url_for('document.view_document', document_id=version.document_id) }}" style="color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;">{{ version.document_name }}</a>
             <span style="color: var(--text-secondary); font-size: 12px;">/</span>
-            <span style="color: white; font-size: 14px; font-weight: 600;">Versão {{ version.version_number }}</span>
+            <span style="color: var(--text-primary); font-size: 14px; font-weight: 600;">Versão {{ version.version_number }}</span>
         </div>
         <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Revisão de Versão v{{ version.version_number }}</h1>
-        <p style="color: var(--text-secondary); margin-top: 4px; font-size: 14px;">Arquivo original: <strong style="color: white; font-family: monospace;">{{ version.original_filename }}</strong></p>
+        <p style="color: var(--text-secondary); margin-top: 4px; font-size: 14px;">Arquivo original: <strong style="color: var(--text-primary); font-family: monospace;">{{ version.original_filename }}</strong></p>
     </div>
     <div style="display: flex; gap: 10px;">
         <a href="{{ url_for('document.view_document', document_id=version.document_id) }}" class="btn btn-secondary">
@@ -100,7 +100,7 @@
 <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; margin-bottom: 30px;">
     
     <div class="card">
-        <h2>📊 Metadados da Revisão</h2>
+        <h2>Metadados da Revisão</h2>
         <table style="margin-top: 0;">
             <tr>
                 <td style="width: 150px; font-weight: 600; color: var(--text-secondary);">Status da Versão:</td>
@@ -133,7 +133,7 @@
     </div>
 
     <div class="card">
-        <h2>🗳️ Workflow de Aprovação</h2>
+        <h2>Workflow de Aprovação</h2>
         
         {% if version.status == 'pending' %}
             <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
@@ -141,12 +141,12 @@
             </p>
             
             {% if differences|length > 0 %}
-                <div class="alert alert-info" style="margin-bottom: 20px; background-color: var(--warning-glow); color: #fde047; border-color: rgba(245, 158, 11, 0.2);">
-                    ⚠️ Foram detectadas <strong>{{ version.differences_count }}</strong> alterações comparado com a última versão aprovada.
+                <div class="alert alert-info" style="margin-bottom: 20px; background-color: var(--warning-glow); color: var(--warning); border-color: var(--border-color);">
+                    Foram detectadas <strong>{{ version.differences_count }}</strong> alterações comparado com a última versão aprovada.
                 </div>
             {% else %}
                 <div class="alert alert-success" style="margin-bottom: 20px;">
-                    ✅ Nenhuma alteração foi detectada em relação à versão base/anterior aprovada.
+                    Nenhuma alteração foi detectada em relação à versão base/anterior aprovada.
                 </div>
             {% endif %}
 
@@ -157,20 +157,20 @@
 
             <div style="display: flex; gap: 12px; margin-top: 15px;">
                 <button class="btn btn-success" style="flex-grow: 1; padding: 12px;" onclick="decideVersion('{{ version.id }}', 'approve')">
-                    <span>✓</span> Aprovar Versão
+                    Aprovar Versão
                 </button>
                 <button class="btn btn-danger" style="flex-grow: 1; padding: 12px;" onclick="decideVersion('{{ version.id }}', 'reject')">
-                    <span>❌</span> Rejeitar Versão
+                    Rejeitar Versão
                 </button>
             </div>
         {% else %}
             <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div class="{% if version.status == 'approved' %}status-icon-approved{% else %}status-icon-rejected{% endif %}" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                        {% if version.status == 'approved' %}✓{% else %}❌{% endif %}
+                        {% if version.status == 'approved' %}✓{% else %}✗{% endif %}
                     </div>
                     <div>
-                        <div style="font-weight: 700; font-size: 16px; color: white;">
+                        <div style="font-weight: 700; font-size: 16px; color: var(--text-primary);">
                             Decisão tomada: {{ version.status|upper }}
                         </div>
                         <div style="font-size: 12px; color: var(--text-secondary);">
@@ -181,12 +181,12 @@
                 
                 <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
                     <p style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">Revisor Responsável:</p>
-                    <p style="font-size: 14px; font-weight: 600; color: white; margin-top: 2px;">{{ version.approved_by }}</p>
+                    <p style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-top: 2px;">{{ version.approved_by }}</p>
                 </div>
                 
                 <div>
                     <p style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">Comentário de Decisão:</p>
-                    <p style="font-size: 14px; color: white; font-style: italic; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 5px;">
+                    <p style="font-size: 14px; color: var(--text-primary); font-style: italic; background: var(--input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 5px;">
                         "{{ version.decision_comment or 'Nenhum comentário fornecido' }}"
                     </p>
                 </div>
@@ -197,11 +197,11 @@
 
 <!-- Diffs e Alterações -->
 <div class="card">
-    <h2>🔍 Comparação de Alterações</h2>
+    <h2>Comparação de Alterações</h2>
     
     {% if version.version_number == 1 %}
         <div class="alert alert-info" style="margin-top: 15px; margin-bottom: 0;">
-            ℹ️ Esta é a versão inicial (Base v1). Não há versões anteriores para comparação.
+            Esta é a versão inicial (Base v1). Não há versões anteriores para comparação.
         </div>
     {% else %}
         <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
@@ -212,23 +212,23 @@
             <div class="difference-table">
                 {% for sheet, diffs in by_sheet.items() %}
                 <div style="margin-bottom: 25px;">
-                    <h4 style="font-size: 16px; font-weight: 700; color: white; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                        <span>📊</span> Planilha / Aba: {{ sheet }}
+                    <h4 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        Planilha / Aba: {{ sheet }}
                     </h4>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
                         {% for diff in diffs %}
-                        <div class="difference-row modified" style="margin-bottom: 0; padding: 15px; background-color: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); border-radius: 8px;">
+                        <div class="difference-row modified" style="margin-bottom: 0; padding: 15px; background-color: var(--warning-glow); border-left: 4px solid var(--warning); border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <strong style="color: white; font-size: 13px;">Célula {{ diff.col }}{{ diff.row }}</strong>
-                                <span style="font-size: 11px; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--text-secondary);">Alterada</span>
+                                <strong style="color: var(--text-primary); font-size: 13px;">Célula {{ diff.col }}{{ diff.row }}</strong>
+                                <span style="font-size: 11px; background: var(--input-bg); padding: 2px 6px; border-radius: 4px; color: var(--text-secondary);">Alterada</span>
                             </div>
                             <div style="font-size: 13px; font-family: monospace; display: flex; flex-direction: column; gap: 4px;">
-                                <div style="color: #fca5a5; display: flex; justify-content: space-between;">
+                                <div style="color: var(--danger); display: flex; justify-content: space-between;">
                                     <span>Removido:</span>
                                     <span style="text-decoration: line-through; font-weight: 500;">{{ diff.old_value }}</span>
                                 </div>
-                                <div style="color: #6ee7b7; display: flex; justify-content: space-between;">
+                                <div style="color: var(--success); display: flex; justify-content: space-between;">
                                     <span>Adicionado:</span>
                                     <span style="font-weight: 700;">{{ diff.new_value }}</span>
                                 </div>
@@ -241,7 +241,7 @@
             </div>
         {% else %}
             <div class="alert alert-success" style="margin-bottom: 0;">
-                ✅ Nenhuma diferença estrutural ou de valores detectada! Os dados são 100% idênticos aos da versão aprovada anterior.
+                Nenhuma diferença estrutural ou de valores detectada! Os dados são idênticos aos da versão aprovada anterior.
             </div>
         {% endif %}
     {% endif %}
@@ -278,7 +278,7 @@
                             <tbody>
                                 {% for row in rows[1:16] %}
                                 <tr>
-                                    <td style="text-align: center; border-right: 1px solid var(--border-color); color: var(--text-secondary); background: rgba(255,255,255,0.01);">{{ loop.index + 1 }}</td>
+                                    <td style="text-align: center; border-right: 1px solid var(--border-color); color: var(--text-secondary); background: var(--input-bg);">{{ loop.index + 1 }}</td>
                                     {% for cell in row %}
                                         <td>{{ cell or '' }}</td>
                                     {% endfor %}
@@ -331,7 +331,7 @@ async function decideVersion(versionId, action) {
         
         if (response.ok) {
             const data = await response.json();
-            alert(`✅ Sucesso: ${data.message}`);
+            alert(`Sucesso: ${data.message}`);
             location.reload();
         } else {
             const error = await response.json();

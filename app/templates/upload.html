@@ -4,10 +4,10 @@
 
 {% block content %}
 <div style="max-width: 650px; margin: 0 auto; width: 100%;">
-    <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 25px;">📤 Enviar Documento / Versão</h1>
+    <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 25px;">Enviar Documento / Versão</h1>
 
     <div class="card">
-        <h2 style="margin-bottom: 20px;">📂 Upload de Arquivo</h2>
+        <h2 style="margin-bottom: 20px;">Upload de Arquivo</h2>
 
         <form method="POST" enctype="multipart/form-data">
             <!-- Tipo de Upload (Novo ou Nova Versão) -->
@@ -48,13 +48,12 @@
             <div class="form-group" style="margin-top: 25px;">
                 <label>Selecionar Arquivo</label>
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                    <label for="file" class="btn btn-secondary" style="border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 15px 30px; display: inline-flex; width: 100%; text-align: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.02);" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
-                        📁 Selecionar Arquivo do Computador
+                    <label for="file" class="btn btn-secondary" style="border: 1px dashed var(--border-color); border-radius: 10px; padding: 15px 30px; display: inline-flex; width: 100%; text-align: center; justify-content: center; cursor: pointer; background: var(--input-bg);" onmouseover="this.style.background='var(--btn-sec-hover)'" onmouseout="this.style.background='var(--input-bg)'">
+                        Selecionar Arquivo do Computador
                     </label>
                     <input type="file" id="file" name="file" accept=".xlsx,.xls,.csv" required style="display: none;" onchange="updateFileName(this)">
                 </div>
-                <div id="file-details" style="display: none; align-items: center; gap: 10px; margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 8px;">
-                    <span style="font-size: 20px;">📄</span>
+                <div id="file-details" style="display: none; align-items: center; gap: 10px; margin-top: 15px; padding: 12px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px;">
                     <div style="flex-grow: 1;">
                         <div id="file-name" style="font-weight: 600; font-size: 14px;"></div>
                         <div id="file-size" style="font-size: 12px; color: var(--text-secondary);"></div>
@@ -63,23 +62,23 @@
             </div>
 
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; margin-top: 15px;">
-                🚀 Enviar e Comparar
+                Enviar e Comparar
             </button>
         </form>
     </div>
 
     <div class="card">
-        <h3 style="font-size: 18px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px;">
-            <span>ℹ️</span> Informações de Upload
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+            Informações de Upload
         </h3>
         <ul style="list-style: none; padding-left: 0; margin-top: 15px;">
-            <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
+            <li style="padding: 10px 0; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
                 <span style="color: var(--primary);">✓</span> Formatos aceitos: Planilhas Excel (.xlsx, .xls) e arquivos de texto estruturados (.csv).
             </li>
-            <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
+            <li style="padding: 10px 0; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
                 <span style="color: var(--primary);">✓</span> Limite de tamanho: 50MB por arquivo.
             </li>
-            <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
+            <li style="padding: 10px 0; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">
                 <span style="color: var(--primary);">✓</span> Algoritmo de Deduplicação SHA-256 ativo: Arquivos com o mesmo conteúdo não criarão novas versões redundantes.
             </li>
             <li style="padding: 10px 0; display: flex; gap: 10px; font-size: 13px; color: var(--text-secondary);">

@@ -432,13 +432,45 @@
         #theme-toggle:hover {
             transform: scale(1.15);
         }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .stat-box {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        [data-theme="light"] .stat-box:hover {
+            box-shadow: 0 12px 24px rgba(122, 111, 77, 0.1);
+        }
+
+        .stat-box h3 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar">
         <a href="{% if current_user.is_authenticated %}{{ url_for('main.dashboard') }}{% else %}/{% endif %}" class="navbar-brand">
-            ⚡ DocFlow
+            DocFlow
         </a>
         <ul class="navbar-menu">
             {% if current_user.is_authenticated %}

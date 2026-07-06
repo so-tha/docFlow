@@ -5,7 +5,7 @@
 {% block content %}
 <div style="max-width: 600px; margin: 50px auto;">
     <div class="card">
-        <h2 style="color: #e74c3c;">⚠️ Erro</h2>
+        <h2 style="color: var(--danger);">Erro</h2>
         <p>{{ error }}</p>
         <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
             ← Voltar ao Dashboard

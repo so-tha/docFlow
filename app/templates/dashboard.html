@@ -5,36 +5,36 @@
 {% block content %}
 <div style="margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
     <div>
-        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Olá, {{ current_user.name }}! 👋</h1>
-        <p style="color: var(--text-secondary); margin-top: 4px;">Bem-vindo de volta ao painel de controle do DocFlow.</p>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Olá, {{ current_user.name }}</h1>
+        <p style="color: var(--text-secondary); margin-top: 4px;">Bem-vindo ao painel de controle do DocFlow.</p>
     </div>
     <div style="display: flex; gap: 12px;">
         <a href="{{ url_for('document.upload') }}" class="btn btn-primary">
-            <span></span> Enviar Nova Versão
+            Enviar Nova Versão
         </a>
         <a href="{{ url_for('document.list_documents') }}" class="btn btn-secondary">
-            <span></span> Listar Documentos
+            Listar Documentos
         </a>
     </div>
 </div>
 
-<!-- Estátisticas do Painel -->
-<div class="stats" style="margin-bottom: 35px;">
-    <div class="stat-box" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.2); box-shadow: 0 4px 20px rgba(99, 102, 241, 0.05);">
-        <h3 style="font-size: 32px; font-weight: 800; color: #a5b4fc;">{{ stats.total_documents }}</h3>
-        <p style="color: var(--text-secondary); font-size: 13px; font-weight: 500; margin-top: 5px;">Documentos Registrados</p>
+<!-- Estatísticas do Painel -->
+<div class="stats">
+    <div class="stat-box" style="border-top: 4px solid var(--primary);">
+        <h3 style="color: var(--primary);">{{ stats.total_documents }}</h3>
+        <p style="color: var(--text-secondary); font-size: 13px; font-weight: 500;">Documentos Registrados</p>
     </div>
-    <div class="stat-box" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%); border: 1px solid rgba(245, 158, 11, 0.2); box-shadow: 0 4px 20px rgba(245, 158, 11, 0.05);">
-        <h3 style="font-size: 32px; font-weight: 800; color: #fde047;">{{ stats.pending_versions }}</h3>
-        <p style="color: var(--text-secondary); font-size: 13px; font-weight: 500; margin-top: 5px;">Versões Pendentes</p>
+    <div class="stat-box" style="border-top: 4px solid var(--secondary);">
+        <h3 style="color: var(--secondary);">{{ stats.pending_versions }}</h3>
+        <p style="color: var(--text-secondary); font-size: 13px; font-weight: 500;">Versões Pendentes</p>
     </div>
-    <div class="stat-box" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.2); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.05);">
-        <h3 style="font-size: 32px; font-weight: 800; color: #6ee7b7;">{{ stats.approved_versions }}</h3>
-        <p style="color: var(--text-secondary); font-size: 13px; font-weight: 500; margin-top: 5px;">Versões Aprovadas</p>
+    <div class="stat-box" style="border-top: 4px solid var(--success);">
+        <h3 style="color: var(--success);">{{ stats.approved_versions }}</h3>
+        <p style="color: var(--text-secondary); font-size: 13px; font-weight: 500;">Versões Aprovadas</p>
     </div>
-    <div class="stat-box" style="background: linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(244, 63, 94, 0.05) 100%); border: 1px solid rgba(244, 63, 94, 0.2); box-shadow: 0 4px 20px rgba(244, 63, 94, 0.05);">
-        <h3 style="font-size: 32px; font-weight: 800; color: #fda4af;">{{ stats.rejected_versions }}</h3>
-        <p style="color: var(--text-secondary); font-size: 13px; font-weight: 500; margin-top: 5px;">Versões Rejeitadas</p>
+    <div class="stat-box" style="border-top: 4px solid var(--danger);">
+        <h3 style="color: var(--danger);">{{ stats.rejected_versions }}</h3>
+        <p style="color: var(--text-secondary); font-size: 13px; font-weight: 500;">Versões Rejeitadas</p>
     </div>
 </div>
 
@@ -43,7 +43,7 @@
     <!-- Seção de Pendentes -->
     {% if pending_reports %}
     <div class="card">
-        <h2>⏳ Versões Pendentes de Aprovação</h2>
+        <h2>Versões Pendentes de Aprovação</h2>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
@@ -59,7 +59,7 @@
                 <tbody>
                     {% for version in pending_reports %}
                     <tr>
-                        <td style="font-weight: 600;"><a href="{{ url_for('document.view_document', document_id=version.document_id) }}" style="color: #a5b4fc; text-decoration: none;">{{ version.document_name }}</a></td>
+                        <td style="font-weight: 600;"><a href="{{ url_for('document.view_document', document_id=version.document_id) }}" style="color: var(--primary); text-decoration: none;">{{ version.document_name }}</a></td>
                         <td><span class="badge badge-pending">v{{ version.version_number }}</span></td>
                         <td style="color: var(--text-secondary); font-family: monospace;">{{ version.original_filename }}</td>
                         <td>{{ version.uploaded_by }}</td>
@@ -78,7 +78,7 @@
     {% endif %}
 
     <div class="card">
-        <h2>Meu Histórico de Envio Recente</h2>
+        <h2>Histórico de Envio</h2>
         {% if recent_reports %}
         <div style="overflow-x: auto;">
             <table>
@@ -95,7 +95,7 @@
                 <tbody>
                     {% for version in recent_reports %}
                     <tr>
-                        <td style="font-weight: 600;"><a href="{{ url_for('document.view_document', document_id=version.document_id) }}" style="color: #a5b4fc; text-decoration: none;">{{ version.document_name }}</a></td>
+                        <td style="font-weight: 600;"><a href="{{ url_for('document.view_document', document_id=version.document_id) }}" style="color: var(--primary); text-decoration: none;">{{ version.document_name }}</a></td>
                         <td><span class="badge {% if version.status == 'approved' %}badge-approved{% elif version.status == 'rejected' %}badge-rejected{% else %}badge-pending{% endif %}">v{{ version.version_number }}</span></td>
                         <td style="color: var(--text-secondary); font-family: monospace;">{{ version.original_filename }}</td>
                         <td>
@@ -121,7 +121,7 @@
 
     {% if recent_activity %}
     <div class="card">
-        <h2>🕐 Linha do Tempo de Auditoria</h2>
+        <h2>Linha do Tempo de Auditoria</h2>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
@@ -137,7 +137,7 @@
                     {% for log in recent_activity %}
                     <tr>
                         <td>
-                            <span class="badge" style="background-color: rgba(255,255,255,0.05); color: white; border-color: var(--border-color);">
+                            <span class="badge" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);">
                                 {{ log.action|upper }}
                             </span>
                         </td>

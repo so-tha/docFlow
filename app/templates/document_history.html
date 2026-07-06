@@ -8,18 +8,18 @@
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
             <a href="{{ url_for('document.list_documents') }}" style="color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;">Documentos</a>
             <span style="color: var(--text-secondary); font-size: 12px;">/</span>
-            <span style="color: white; font-size: 14px; font-weight: 600;">Histórico</span>
+            <span style="color: var(--text-primary); font-size: 14px; font-weight: 600;">Histórico</span>
         </div>
         <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">{{ document.name }}</h1>
-        <p style="color: var(--text-secondary); margin-top: 4px; font-size: 14px;">Criado por <strong style="color: white;">{{ document.created_by.name }}</strong> em {{ document.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+        <p style="color: var(--text-secondary); margin-top: 4px; font-size: 14px;">Criado por <strong style="color: var(--text-primary);">{{ document.created_by.name }}</strong> em {{ document.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
     </div>
     <a href="{{ url_for('document.upload', document_id=document.id) }}" class="btn btn-primary">
-        Enviar Nova Versão
+        Enviar Versão
     </a>
 </div>
 
 <div class="card">
-    <h2 style="margin-bottom: 20px;">Linha do Tempo de Versões</h2>
+    <h2 style="margin-bottom: 20px;">Linha do Tempo</h2>
     
     {% if versions %}
     <div style="overflow-x: auto;">
@@ -46,12 +46,12 @@
                     <td>{{ version.uploaded_at }}</td>
                     <td>
                         {% if version.version_number == 1 %}
-                            <span style="color: var(--text-secondary); font-size: 13px;">— (Versão Base)</span>
+                            <span style="color: var(--text-secondary); font-size: 13px;">— (Base)</span>
                         {% else %}
                             {% if version.differences_count > 0 %}
-                                <span style="font-weight: 600; color: #fcd34d;">
+                                <span style="font-weight: 600; color: var(--secondary);">
                             {% else %}
-                                <span style="font-weight: 600; color: #34d399;">
+                                <span style="font-weight: 600; color: var(--success);">
                             {% endif %}
                                     {{ version.differences_count }} alterações
                                 </span>
@@ -64,21 +64,21 @@
                     </td>
                     <td style="text-align: right;">
                         <a href="{{ url_for('document.view_version', version_id=version.id) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 6px;">
-                            Ver Detalhes
+                            Ver
                         </a>
                     </td>
                 </tr>
                 
                 {% if version.decision_comment %}
-                <tr style="background: rgba(255, 255, 255, 0.01);">
-                    <td colspan="8" style="padding: 8px 16px 16px 36px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px; color: var(--text-secondary);">
+                <tr style="background: var(--input-bg);">
+                    <td colspan="8" style="padding: 8px 16px 16px 36px; border-bottom: 1px solid var(--border-color); font-size: 12px; color: var(--text-secondary);">
                         <div style="display: flex; gap: 10px; align-items: flex-start;">
                             <span style="font-style: italic;">Comentário de Decisão:</span>
                             <span style="color: var(--text-primary); font-weight: 500;">"{{ version.decision_comment }}"</span>
                             {% if version.status == 'approved' %}
-                                <span style="color: #6ee7b7; font-size: 11px;">(Aprovado por {{ version.approved_by }})</span>
+                                <span style="color: var(--success); font-size: 11px;">(Aprovado por {{ version.approved_by }})</span>
                             {% elif version.status == 'rejected' %}
-                                <span style="color: #fda4af; font-size: 11px;">(Rejeitado por {{ version.approved_by }})</span>
+                                <span style="color: var(--danger); font-size: 11px;">(Rejeitado por {{ version.approved_by }})</span>
                             {% endif %}
                         </div>
                     </td>

@@ -5,8 +5,8 @@
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto; width: 100%;">
     <div style="margin-bottom: 25px;">
-        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">👤 Perfil de Usuário</h1>
-        <p style="color: var(--text-secondary); margin-top: 4px;">Informações cadastrais e histórico de interações com o sistema.</p>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Meu Perfil</h1>
+        <p style="color: var(--text-secondary); margin-top: 4px;">Dados cadastrais e atividades recentes.</p>
     </div>
 
     <div class="card">
@@ -14,7 +14,7 @@
         <table style="margin-top: 0;">
             <tr>
                 <td style="width: 180px; font-weight: 600; color: var(--text-secondary);">Nome Completo:</td>
-                <td style="font-weight: 600; color: white;">{{ user.name }}</td>
+                <td style="font-weight: 600; color: var(--text-primary);">{{ user.name }}</td>
             </tr>
             <tr>
                 <td style="font-weight: 600; color: var(--text-secondary);">E-mail Corporativo:</td>
@@ -39,7 +39,7 @@
 
     {% if recent_activity %}
     <div class="card">
-        <h2>Minha Atividade Recente</h2>
+        <h2>Minhas Atividades</h2>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
@@ -53,7 +53,7 @@
                     {% for log in recent_activity %}
                     <tr>
                         <td>
-                            <span class="badge" style="background-color: rgba(255,255,255,0.05); color: white; border-color: var(--border-color);">
+                            <span class="badge" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);">
                                 {{ log.action|upper }}
                             </span>
                         </td>

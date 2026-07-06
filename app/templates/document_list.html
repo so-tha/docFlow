@@ -5,11 +5,11 @@
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
     <div>
-        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">📁 Gerenciador de Documentos</h1>
-        <p style="color: var(--text-secondary); margin-top: 4px;">Gerencie seus documentos e envie novas revisões para auditoria.</p>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Documentos</h1>
+        <p style="color: var(--text-secondary); margin-top: 4px;">Gerencie os documentos e suas versões.</p>
     </div>
     <a href="{{ url_for('document.upload') }}" class="btn btn-primary">
-        <span></span> Criar Novo Documento
+        Novo Documento
     </a>
 </div>
 
@@ -32,7 +32,7 @@
                 {% set latest = doc.get_latest_version() %}
                 <tr>
                     <td style="font-weight: 600; font-size: 15px;">
-                        <a href="{{ url_for('document.view_document', document_id=doc.id) }}" style="color: #a5b4fc; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                        <a href="{{ url_for('document.view_document', document_id=doc.id) }}" style="color: var(--primary); text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
                             {{ doc.name }}
                         </a>
                     </td>
@@ -42,7 +42,7 @@
                                 v{{ latest.version_number }}
                             </span>
                         {% else %}
-                            <span class="badge" style="background-color: rgba(255,255,255,0.05); color: var(--text-secondary);">Sem versão</span>
+                            <span class="badge" style="background-color: var(--input-bg); color: var(--text-secondary);">Sem versão</span>
                         {% endif %}
                     </td>
                     <td>{{ doc.created_by.name }}</td>
@@ -59,13 +59,13 @@
                     <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
                         {% if latest %}
                             <a href="{{ url_for('document.view_version', version_id=latest.id) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 6px;" title="Ver Detalhes/Diferenças da Última Versão">
-                            Analisar
+                                Analisar
                             </a>
                         {% endif %}
                         <a href="{{ url_for('document.view_document', document_id=doc.id) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 6px;" title="Ver Histórico de Versões">
                             Histórico
                         </a>
-                        <a href="{{ url_for('document.upload', document_id=doc.id) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 6px; border-color: rgba(99, 102, 241, 0.2);" title="Subir Nova Versão">
+                        <a href="{{ url_for('document.upload', document_id=doc.id) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 6px; border-color: var(--border-color);" title="Subir Nova Versão">
                             Nova Versão
                         </a>
                     </td>
@@ -77,13 +77,12 @@
 </div>
 {% else %}
 <div class="card" style="text-align: center; padding: 50px 20px;">
-    <span style="font-size: 60px; display: block; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(99,102,241,0.2));">📁</span>
-    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 10px; color: white;">Nenhum documento cadastrado</h3>
+    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary);">Nenhum documento cadastrado</h3>
     <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto 25px auto; font-size: 14px;">
-        Cadastre o primeiro documento do sistema enviando uma planilha Excel ou arquivo CSV para iniciar o histórico de revisões.
+        Cadastre o primeiro documento do sistema enviando uma planilha Excel ou arquivo CSV.
     </p>
     <a href="{{ url_for('document.upload') }}" class="btn btn-primary">
-        <span>📤</span> Enviar Primeiro Documento
+        Cadastrar Documento
     </a>
 </div>
 {% endif %}
