@@ -1,21 +1,10 @@
-# Desktop GUI Framework (6.7.x: wheels alinhados com MSVC no GitHub Actions Windows)
-PyQt6==6.7.1
-
-# Database & ORM
 SQLAlchemy==2.0.23
-# sqlite3 is built-in to Python, no need to install
-
-# File & Data Handling
 openpyxl==3.1.5
 pandas>=2.1.3
 requests==2.31.0
-
-# Authentication & Security
-werkzeug==3.0.1
+flask>=3.1.0
+flask-login>=0.6.3
+flask-sqlalchemy>=3.1.0
+flask-migrate>=4.0.0
+werkzeug>=3.1.0
 python-dotenv==1.0.0
-msal==1.28.0
-
-# Azure Integration
-azure-identity==1.15.0
-azure-storage-blob==12.20.0
-msgraph-core==0.2.2

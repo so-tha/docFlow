@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from flask import Flask
+# pyrefly: ignore [missing-import]
 from flask_login import LoginManager
 from app.config import get_config
 from app.models import db, User
@@ -13,7 +15,7 @@ def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
     app.config.from_object(config)
     
-    db_path = app.config.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///loglife.db')
+    db_path = app.config.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///docflow.db')
     
     if db_path.startswith('sqlite:///'):
         db_file = db_path.replace('sqlite:///', '')

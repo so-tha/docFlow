@@ -12,20 +12,13 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     
     # ✅ Usar caminho absoluto para SQLite
-    DB_PATH = os.getenv('DATABASE_PATH', str(PROJECT_ROOT / 'instance' / 'loglife.db'))
+    DB_PATH = os.getenv('DATABASE_PATH', str(PROJECT_ROOT / 'instance' / 'docflow.db'))
     SQLALCHEMY_DATABASE_URI = f'sqlite:///{DB_PATH}'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', 52428800))  # 50MB
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', str(PROJECT_ROOT / 'uploads'))
     ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv', 'pdf'}
-    
-    SHAREPOINT_SITE_URL = os.getenv('SHAREPOINT_SITE_URL', '')
-    SHAREPOINT_LIBRARY = os.getenv('SHAREPOINT_LIBRARY', 'Documentos Compartilhados')
-
-    AZURE_TENANT_ID = os.getenv('AZURE_TENANT_ID', '')
-    AZURE_CLIENT_ID = os.getenv('AZURE_CLIENT_ID', '')
-    AZURE_CLIENT_SECRET = os.getenv('AZURE_CLIENT_SECRET', '')
 
 
 class DevelopmentConfig(Config):
